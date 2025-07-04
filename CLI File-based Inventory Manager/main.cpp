@@ -34,32 +34,38 @@ int main() {
 
     try {
 
-        if(fs::exists(save_directory) && fs::is_directory(save_directory)) {
-            std::cout << "Please choose a file to load" << std::endl;
+        bool save_file_exists = false; // flag to check if save file exists
+
+        if(fs::exists(save_directory) && fs::is_directory(save_directory)) { // check if the save directory exists
+            std::cout << "Please choose a file to load: " << std::endl;
 
             for(const auto& entry : fs::directory_iterator(save_directory)) {
-                std::cout << "scanning save directory" << std::endl;
 
+                // Check if the entry is a regular file
                 if(fs::is_regular_file(entry.status())) {
-                    std::cout << ""
-
+                    // Check if the file has the target extension
                     if(entry.path().extension() == target_extension) {
-
-                        std::cout << "vaild save file found" << std::endl;
-                        std::cout << entry.path().filename() << std::endl;
-                    } else { // no valid .csv files found
-                        std::cout << "Directory found; no valid files" << std::endl;
-                        createSave(save_directory);
+                        std::cout << entry.path().filename() << std::endl; // print valid save file
+                        save_file_exists = true; // set flag to true
+                        // continue to scan directory for more valid files
+                    } else {
+                        std::cout << entry.path().filename() << std::endl; // print invalid file
+                        // continue to scan directory for more files
                     }
                 }
             }
+
+            // if no valid save file found, create a new save file
+                if(!save_file_exists) {
+                    std::cout << "No valid save file found, creating new save file" << std::endl;
+                    createSave(save_directory); // create save file
+                }
+        
         } else { // no save directory found
             
             std::cerr << "No save directory found" << std::endl;
             // create new save directory
             if(std::filesystem::create_directories(save_directory)) {
-
-                std::cout << "directory created\n";
                 createSave(save_directory); // create save file
             }
         }

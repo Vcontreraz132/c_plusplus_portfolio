@@ -4,8 +4,39 @@
 #include <fstream>
 #include <filesystem>
 
+#include "functions.hpp"
+
+
+/*---------------------------------------------------------------------------------*/
+                                /*Item Class*/
+class Item {
+    int id;
+    std::string name;
+    double price;
+    int quantity;
+
+public:
+    Item(int id, std::string name, double price, int quantity)
+        : id(id), name(name), price(price), quantity(quantity) {}
+    // Getters for item properties
+    int getId() const { return id; }
+    std::string getName() const { return name; }
+    double getPrice() const { return price; }
+    int getQuantity() const { return quantity; }
+    // Setters for item properties
+    void setName(const std::string& newName) { name = newName; }
+    void setPrice(double newPrice) { price = newPrice; }
+    void setQuantity(int newQuantity) { quantity = newQuantity; }
+    // Method to display item details
+    void display() const {
+        std::cout << "ID: " << id << ", Name: " << name 
+                  << ", Price: " << price << ", Quantity: " << quantity << std::endl;
+    }
+};
+/*---------------------------------------------------------------------------------*/
+
 int createSave(std::string save_directory) {
-    std::cerr << "No save files found" << std::endl;
+    // std::cerr << "No save files found" << std::endl;
     std::string save_file_name = "";
 
     // create new file
@@ -49,11 +80,12 @@ int loadSave(std::string save_directory, std::string save_file_name) {
     return 0;
 }
 
-int scanSaveDirectory(std::string save_directory, std::string target_extension) {
+bool scanSaveDirectory(std::string save_directory, std::string target_extension) {
+    bool save_file_exists = false; // flag to check if save file exists
     for(const auto& entry : std::filesystem::directory_iterator(save_directory)) {
 
         // Check if the entry is a regular file
-        if(fs::is_regular_file(entry.status())) {
+        if(std::filesystem::is_regular_file(entry.status())) {
             // Check if the file has the target extension
             if(entry.path().extension() == target_extension) {
                 std::cout << entry.path().filename() << std::endl; // print valid save file
@@ -65,5 +97,5 @@ int scanSaveDirectory(std::string save_directory, std::string target_extension) 
             }
         }
     }
-    return 0;
+    return save_file_exists; // return true if at least one valid save file exists
 }

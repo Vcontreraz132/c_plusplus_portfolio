@@ -4,37 +4,6 @@
 #include <fstream>
 #include <filesystem>
 
-#include "functions.hpp"
-
-
-/*---------------------------------------------------------------------------------*/
-                                /*Item Class*/
-class Item {
-    int id;
-    std::string name;
-    double price;
-    int quantity;
-
-public:
-    Item(int id, std::string name, double price, int quantity)
-        : id(id), name(name), price(price), quantity(quantity) {}
-    // Getters for item properties
-    int getId() const { return id; }
-    std::string getName() const { return name; }
-    double getPrice() const { return price; }
-    int getQuantity() const { return quantity; }
-    // Setters for item properties
-    void setName(const std::string& newName) { name = newName; }
-    void setPrice(double newPrice) { price = newPrice; }
-    void setQuantity(int newQuantity) { quantity = newQuantity; }
-    // Method to display item details
-    void display() const {
-        std::cout << "ID: " << id << ", Name: " << name 
-                  << ", Price: " << price << ", Quantity: " << quantity << std::endl;
-    }
-};
-/*---------------------------------------------------------------------------------*/
-
 int createSave(std::string save_directory) {
     // std::cerr << "No save files found" << std::endl;
     std::string save_file_name = "";

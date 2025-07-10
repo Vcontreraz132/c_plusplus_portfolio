@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
+#include <algorithm>
 #include "functions.hpp"
 
 int createSave(std::string save_directory) {
@@ -47,6 +48,15 @@ std::vector<Item> loadSave(std::string save_directory, std::string save_file_nam
         while(std::getline(save_file, line)) {
             // Process each line of the save file
             Item item; // Create an Item object to hold the data
+
+            //  validate csv line format
+            if(line.empty() || line.find(',') == std::string::npos) {
+                std::cerr << "Invalid line format: " << line << std::endl;
+                continue; // Skip to the next line if the format is invalid
+            } else if(std::count(line.begin(), line.end(), ',') < 3) { // count tokens
+                std::cerr << "Insufficient data in line: " << line << std::endl;
+                continue; // Skip to the next line if there are not enough commas
+            }
 
             std::stringstream ss(line);
             std::string item_id, item_name, item_price, item_quantity;

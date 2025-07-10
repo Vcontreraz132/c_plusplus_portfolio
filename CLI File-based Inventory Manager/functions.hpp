@@ -1,9 +1,3 @@
-int createSave(std::string save_directory);
-
-int scanSaveDirectory(std::string save_directory, std::string target_extension);
-
-int loadSave(std::string save_directory, std::string save_file_name);
-
 /*---------------------------------------------------------------------------------*/
                                 /*Item Class*/
 class Item {
@@ -36,3 +30,13 @@ public:
     void setQuantity(int newQuantity) { quantity = newQuantity; }   
 };
 /*---------------------------------------------------------------------------------*/
+
+int createSave(std::string save_directory);
+
+bool scanSaveDirectory(std::string save_directory, std::string target_extension);
+
+void printMenu();
+
+std::vector<Item> loadSave(std::string save_directory, std::string save_file_name);
+
+void showAllItems(const std::vector<Item>& allItems);

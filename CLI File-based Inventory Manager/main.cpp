@@ -45,23 +45,18 @@ int main() {
             std::cerr << "No save directory found" << std::endl;
             // create new save directory
             if(std::filesystem::create_directories(save_directory)) {
-                createSave(save_directory); // create save file
+                while(!save_file_exists) { // if no valid save file found, create a new save file
+                    std::cout << "No valid save file found, creating new save file" << std::endl;
+                    // create a new save file
+                    createSave(save_directory); // create save file
+                    save_file_exists = scanSaveDirectory(save_directory, target_extension); // after creating a new save file, scan the directory again
+                }
             }
         }
     } catch (const fs::filesystem_error& ex) {
 
         std::cerr << "Filesystem error: " << ex.what() << std::endl;
     }
-
-    // move logic out of try/catch block
-
-    // if no valid save file found, create a new save file
-    while(!save_file_exists) {
-        std::cout << "No valid save file found, creating new save file" << std::endl;
-        createSave(save_directory); // create save file
-        save_file_exists = scanSaveDirectory(save_directory, target_extension); // after creating a new save file, scan the directory again
-    }
-
 
     // Collect valid save files into a vector
     std::vector<fs::directory_entry> valid_files;
@@ -138,6 +133,15 @@ int main() {
         std::getline(std::cin, choice);
         
         switch(choice[0]) {
+            case '1': // add item
+                // addItem();
+                break;
+            case '2': // remove item
+                break;
+            case '3': // modify item
+                break;
+            case '4': // search item
+                break;
             case '5': // show all
                 showAllItems(allItems); // function to display all items
                 break;
@@ -150,53 +154,6 @@ int main() {
                 break;
         }
     }
-
-    /*****************************************************************************************************************************
-
-    // create test item object and save to file
-    Item test_item;
-    test_item.init(1, "Test Item", 9.99, 100);
-    std::cout << "Test Item: ";
-    test_item.display();
-    std::ofstream save_file(save_directory + "/" + save_file_name, std::ios::app); // append to existing file
-    if(save_file.is_open()) {
-        save_file << test_item.getId() << "," << test_item.getName() << ","
-                  << test_item.getPrice() << "," << test_item.getQuantity() << "\n";
-        save_file.close();
-        std::cout << "Test item saved to " << save_file_name << std::endl;
-    } else {
-        std::cerr << "Error: Unable to open save file for writing" << std::endl;
-    }
-
-    // create a new item and prompt user for information before saving to file
-    Item new_item;
-    int id;
-    std::string name;
-    double price;
-    int quantity;
-    std::cout << "Enter item ID: ";
-    std::cin >> id;
-    std::cin.ignore(); // clear the newline character from the input buffer
-    std::cout << "Enter item name: ";
-    std::getline(std::cin, name);
-    std::cout << "Enter item price: ";
-    std::cin >> price;
-    std::cout << "Enter item quantity: ";
-    std::cin >> quantity;
-    new_item.init(id, name, price, quantity);
-    std::cout << "New Item: ";
-    new_item.display();
-    
-    // append to the same save file
-    save_file.open(save_directory + "/" + save_file_name, std::ios::app);
-    if(save_file.is_open()) {
-        save_file << new_item.getId() << "," << new_item.getName() << ","
-                  << new_item.getPrice() << "," << new_item.getQuantity() << "\n";
-        save_file.close();
-        std::cout << "Test item saved to " << save_file_name << std::endl;
-    } else {
-        std::cerr << "Error: Unable to open save file for writing" << std::endl;
-    }*/
 
     return 0;
 }

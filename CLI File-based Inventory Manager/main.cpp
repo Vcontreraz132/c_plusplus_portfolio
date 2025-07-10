@@ -107,12 +107,14 @@ int main() {
     }
     std::cout << "Selected save file: " << save_file_name << std::endl;
 
+    std::string full_directory = save_directory + "/" + save_file_name; // full path to the selected save file
+
     // create a vector to hold all items
     std::vector<Item> allItems; // Vector to hold all items
 
     // now that we have a valid save file, we can load it
     if(!save_file_name.empty()) {
-        allItems = loadSave(save_directory, save_file_name); // load items from the selected save file
+        allItems = loadSave(full_directory); // load items from the selected save file
         if(allItems.empty()) {
             std::cout << "No items found in the save file." << std::endl;
         } else {
@@ -122,19 +124,17 @@ int main() {
         std::cerr << "No save file selected" << std::endl;
     }
 
-    // file is loaded, print menu items and wait for selection
-    printMenu();
-
     // main loop
     bool running = true;
     while(running) {
+        printMenu();
         std::string choice;
         std::cout << "Enter your choice: ";
         std::getline(std::cin, choice);
         
         switch(choice[0]) {
             case '1': // add item
-                // addItem();
+                addItem(allItems, full_directory); // function to add item
                 break;
             case '2': // remove item
                 break;

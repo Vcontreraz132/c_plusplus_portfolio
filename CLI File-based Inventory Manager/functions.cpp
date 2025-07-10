@@ -14,18 +14,33 @@ int createSave(std::string save_directory) {
     std::cout << "Please create a new save file: ";
     std::getline(std::cin, save_file_name);
 
-    // if(save_file_name does not contain .csv) {
-    //     save_file_name = save_file_name + ".csv"; // ensure save file is .csv file
-    // }
+    // if save file does not end with .csv, append it
+    if(save_file_name.find(".csv") == std::string::npos) {
+        save_file_name += ".csv"; // append .csv to the save file name
+    }
+    // check if save file name is empty
+    if(save_file_name.empty()) {
+        std::cerr << "Save file name cannot be empty" << std::endl;
+        return -1; // return error code
+    }
+    // check if save file name is valid
+    if(save_file_name.find_first_of("/\\") != std::string::npos) {
+        std::cerr << "Invalid save file name: " << save_file_name << std::endl;
+        return -1; // return error code
+    }
+    // check if save file name is too long
+    if(save_file_name.length() > 255) {
+        std::cerr << "Save file name is too long: " << save_file_name << std::endl;
+        return -1; // return error code
+    }
 
     std::string full_directory = save_directory + "/" + save_file_name;
-    // std::cout << full_directory << std::endl;
 
     std::ofstream new_save(full_directory);
     if(new_save.is_open()) {
-
         std::cout << "File created successfully" << std::endl;
-        new_save << "";
+        // Write header to the new save file
+        new_save << "ID,Name,Price,Quantity\n"; // CSV header
         new_save.close();
     } else {
 
@@ -37,8 +52,7 @@ int createSave(std::string save_directory) {
 
 // change loadSave to return a vector of Item objects
 
-std::vector<Item> loadSave(std::string save_directory, std::string save_file_name) {
-    std::string full_directory = save_directory + "/" + save_file_name;
+std::vector<Item> loadSave(std::string full_directory) {
     std::vector<Item> allItems; // Vector to hold all items
 
     std::ifstream save_file(full_directory);
@@ -48,6 +62,11 @@ std::vector<Item> loadSave(std::string save_directory, std::string save_file_nam
         while(std::getline(save_file, line)) {
             // Process each line of the save file
             Item item; // Create an Item object to hold the data
+
+            // Skip the header line
+            if(line.find("ID,Name,Price,Quantity") != std::string::npos) {
+                continue; // Skip the header line
+            }
 
             //  validate csv line format
             if(line.empty() || line.find(',') == std::string::npos) {
@@ -115,5 +134,43 @@ void showAllItems(const std::vector<Item>& allItems) {
     std::cout << "All Items:" << std::endl;
     for(const auto& item : allItems) {
         item.display(); // Display each item
+    }
+    std::cin.get(); // Wait for user input before returning to the menu 
+}
+
+void addItem(std::vector<Item>& allItems, std::string full_directory) {
+    Item newItem; // Create a new Item object
+    int id;
+    std::string name;
+    double price;
+    int quantity;
+
+    std::cout << "Enter Item ID: ";
+    std::cin >> id;
+    std::cin.ignore(); // Ignore the newline character left in the input buffer
+    std::cout << "Enter Item Name: ";
+    std::getline(std::cin, name);
+    std::cout << "Enter Item Price: ";
+    std::cin >> price;
+    std::cout << "Enter Item Quantity: ";
+    std::cin >> quantity;
+
+    // Initialize the new item with the provided details
+    newItem.init(id, name, price, quantity);
+    allItems.push_back(newItem); // Add the new item to the vector
+    std::cout << "Item added successfully!" << std::endl;
+    newItem.display(); // Display the newly added item
+
+    // add new item to save file
+    std::ofstream save_file(full_directory, std::ios::app); // Open the file in append mode
+    if(save_file.is_open()) {
+        save_file << newItem.getId() << "," 
+                  << newItem.getName() << ","
+                  << newItem.getPrice() << ","
+                  << newItem.getQuantity() << "\n"; // Write the item details to the file
+        save_file.close(); // Close the file after writing
+        std::cout << "Item saved to file successfully!" << std::endl;
+    } else {
+        std::cerr << "Error: Unable to open save file for writing." << std::endl;
     }
 }

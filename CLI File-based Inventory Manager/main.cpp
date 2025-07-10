@@ -112,12 +112,46 @@ int main() {
     }
     std::cout << "Selected save file: " << save_file_name << std::endl;
 
+    // create a vector to hold all items
+    std::vector<Item> allItems; // Vector to hold all items
+
     // now that we have a valid save file, we can load it
     if(!save_file_name.empty()) {
-        loadSave(save_directory, save_file_name); // load the save file, data stored in .csv format, load data into item class
+        allItems = loadSave(save_directory, save_file_name); // load items from the selected save file
+        if(allItems.empty()) {
+            std::cout << "No items found in the save file." << std::endl;
+        } else {
+            std::cout << "Items loaded successfully." << std::endl;
+        }
     } else {
         std::cerr << "No save file selected" << std::endl;
     }
+
+    // file is loaded, print menu items and wait for selection
+    printMenu();
+
+    // main loop
+    bool running = true;
+    while(running) {
+        std::string choice;
+        std::cout << "Enter your choice: ";
+        std::getline(std::cin, choice);
+        
+        switch(choice[0]) {
+            case '5': // show all
+                showAllItems(allItems); // function to display all items
+                break;
+            case '6': // exit
+                running = false; // exit the loop
+                std::cout << "Exiting..." << std::endl;
+                break;
+            default:
+                std::cout << "Invalid choice, please try again." << std::endl;
+                break;
+        }
+    }
+
+    /*****************************************************************************************************************************
 
     // create test item object and save to file
     Item test_item;
@@ -162,7 +196,7 @@ int main() {
         std::cout << "Test item saved to " << save_file_name << std::endl;
     } else {
         std::cerr << "Error: Unable to open save file for writing" << std::endl;
-    }
+    }*/
 
     return 0;
 }

@@ -13,6 +13,9 @@ public:
         this->price = price;
         this->quantity = quantity;
     }
+
+    Item(int id = 0, std::string name = "", double price = 0.0, int quantity = 0)
+        : id(id), name(name), price(price), quantity(quantity) {}
     void display() const {
         std::cout << "ID: " << id << ", Name: " << name
                   << ", Price: " << price << ", Quantity: " << quantity << std::endl;
@@ -37,6 +40,8 @@ bool scanSaveDirectory(std::string save_directory, std::string target_extension)
 
 void printMenu();
 
-std::vector<Item> loadSave(std::string save_directory, std::string save_file_name);
+std::vector<Item> loadSave(std::string full_directory);
 
 void showAllItems(const std::vector<Item>& allItems);
+
+void addItem(std::vector<Item>& allItems, std::string full_directory);

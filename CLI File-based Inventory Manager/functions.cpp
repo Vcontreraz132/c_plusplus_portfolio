@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
+#include "functions.hpp"
 
 int createSave(std::string save_directory) {
     // std::cerr << "No save files found" << std::endl;
@@ -33,20 +34,39 @@ int createSave(std::string save_directory) {
     return 0;
 }
 
-int loadSave(std::string save_directory, std::string save_file_name) {
+// change loadSave to return a vector of Item objects
+
+std::vector<Item> loadSave(std::string save_directory, std::string save_file_name) {
     std::string full_directory = save_directory + "/" + save_file_name;
+    std::vector<Item> allItems; // Vector to hold all items
 
     std::ifstream save_file(full_directory);
     if(save_file.is_open()) {
-        std::cout << "File loaded successfully" << std::endl;
-        // Load the file content into a vector or any other data structure as needed
-        // For now, just close the file
+
+        std::string line;
+        while(std::getline(save_file, line)) {
+            // Process each line of the save file
+            Item item; // Create an Item object to hold the data
+
+            std::stringstream ss(line);
+            std::string item_id, item_name, item_price, item_quantity;
+            std::getline(ss, item_id, ',');
+            std::getline(ss, item_name, ',');
+            std::getline(ss, item_price, ',');
+            std::getline(ss, item_quantity, ',');
+
+            item.init(std::stoi(item_id), item_name, std::stod(item_price), std::stoi(item_quantity));
+            allItems.push_back(item); // Add the item to the vector
+        }
+        // after loading all items, close the file
         save_file.close();
+
+        std::cout << "File loaded successfully" << std::endl;
     } else {
         std::cerr << "File error: Unable to open file" << std::endl;
     }
 
-    return 0;
+    return allItems; // Return the vector of items
 }
 
 bool scanSaveDirectory(std::string save_directory, std::string target_extension) {
@@ -67,4 +87,23 @@ bool scanSaveDirectory(std::string save_directory, std::string target_extension)
         }
     }
     return save_file_exists; // return true if at least one valid save file exists
+}
+
+
+// flowchart: print menu options; subroutine B: add item remove item modify item search, show all
+void printMenu() {
+    std::cout << "Menu Options:" << std::endl;
+    std::cout << "1. Add Item" << std::endl;
+    std::cout << "2. Remove Item" << std::endl;
+    std::cout << "3. Modify Item" << std::endl;
+    std::cout << "4. Search Item" << std::endl;
+    std::cout << "5. Show All Items" << std::endl;
+    std::cout << "6. Exit" << std::endl;
+}
+
+void showAllItems(const std::vector<Item>& allItems) {
+    std::cout << "All Items:" << std::endl;
+    for(const auto& item : allItems) {
+        item.display(); // Display each item
+    }
 }

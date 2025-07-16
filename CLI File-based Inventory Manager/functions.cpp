@@ -145,15 +145,38 @@ void addItem(std::vector<Item>& allItems, std::string full_directory) {
     double price;
     int quantity;
 
-    std::cout << "Enter Item ID: ";
-    std::cin >> id;
-    std::cin.ignore(); // Ignore the newline character left in the input buffer
-    std::cout << "Enter Item Name: ";
-    std::getline(std::cin, name);
-    std::cout << "Enter Item Price: ";
-    std::cin >> price;
-    std::cout << "Enter Item Quantity: ";
-    std::cin >> quantity;
+    // wrap user input in try / catch block to handle invalid input
+    try {
+        std::cout << "Enter Item ID: ";
+        std::cin >> id;
+        if(std::cin.fail()) {
+            throw std::invalid_argument("Invalid ID input. Please enter a valid number.");
+        }
+        std::cin.ignore(); // Ignore the newline character left in the input buffer
+        std::cout << "Enter Item Name: ";
+        std::getline(std::cin, name);
+        if(name.empty()) {
+            throw std::invalid_argument("Item name cannot be empty.");
+        }
+        std::cout << "Enter Item Price: ";
+        std::cin >> price;
+        if(std::cin.fail() || price < 0) {
+            throw std::invalid_argument("Invalid price input. Please enter a valid positive number.");
+        }
+        std::cin.ignore(); // Ignore the newline character left in the input buffer
+        std::cout << "Enter Item Quantity: ";
+        std::cin >> quantity;
+        if(std::cin.fail() || quantity < 0) {
+            throw std::invalid_argument("Invalid quantity input. Please enter a valid non-negative number.");
+        }
+    }
+    catch(const std::invalid_argument& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
+        return; // Exit the function if input is invalid
+    }
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer after reading all inputs
 
     // Initialize the new item with the provided details
     newItem.init(id, name, price, quantity);
@@ -172,5 +195,76 @@ void addItem(std::vector<Item>& allItems, std::string full_directory) {
         std::cout << "Item saved to file successfully!" << std::endl;
     } else {
         std::cerr << "Error: Unable to open save file for writing." << std::endl;
+    }
+}
+
+void removeItem(std::vector<Item>& allItems) {
+    if(allItems.empty()) {
+        std::cout << "No items to remove." << std::endl;
+        return; // Exit if there are no items
+    }
+
+    std::string input;
+    std::cout << "Enter the ID or name of the item to remove: ";
+    std::cin >> input;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer after reading the input
+
+    // Find the item by ID or name
+    auto it = std::remove_if(allItems.begin(), allItems.end(), [input](const Item& item) {
+        return std::to_string(item.getId()) == input || item.getName() == input;
+    });
+    if(it != allItems.end()) {
+        // Item found, remove it
+        allItems.erase(it, allItems.end());
+        std::cout << "Item removed successfully." << std::endl;
+    } else {
+        std::cout << "Item not found." << std::endl;
+        return; // Exit if item not found
+    }
+}
+
+void printModifyMenu() {
+    std::cout << "Modify Item Options:" << std::endl;
+    std::cout << "1. Change Name" << std::endl;
+    std::cout << "2. Change Price" << std::endl;
+    std::cout << "3. Change Quantity" << std::endl;
+    std::cout << "4. Exit" << std::endl;
+}
+
+void modifyItem(std::vector<Item>& allItems) {
+    // take in vector and prompt user for name or id of item to modify
+
+    std::string input;
+    std::cout << "Enter the ID or name of the item to modify: ";
+    std::cin >> input;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // clear input buffer to prevent newline issues
+    auto it = std::remove_if(allItems.begin(), allItems.end(), [input](const Item& item) {
+        return std::to_string(item.getId()) == input || item.getName() == input;
+    });
+
+    if(it != allItems.end()) {
+        // item match found, modify it
+        printModifyMenu();
+        std::string choice;
+        std::cout << "Enter your choice: ";
+        std::getline(std::cin, choice);
+
+        switch(choice[0]) {
+            case '1': {
+                std::string newName;
+                std::cout << "Enter new name: ";
+                std::getline(std::cin, newName);
+                it->setName(newName); // call setName of selected item
+                it->getName(); // confirm that name has changed
+                std::cout << "Name changed successfully" << std::endl;
+                return;
+            }
+
+            default : {
+                std::cout << "Invalid entry" << std::endl;
+                return;
+            }
+        }
+
     }
 }

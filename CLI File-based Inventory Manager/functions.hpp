@@ -14,8 +14,9 @@ public:
         this->quantity = quantity;
     }
 
-    Item(int id = 0, std::string name = "", double price = 0.0, int quantity = 0)
+    Item(int id = 0, std::string name = "", double price = 0.0, int quantity = 0) // Constructor
         : id(id), name(name), price(price), quantity(quantity) {}
+
     void display() const {
         std::cout << "ID: " << id << ", Name: " << name
                   << ", Price: " << price << ", Quantity: " << quantity << std::endl;
@@ -30,7 +31,8 @@ public:
     void setId(int newId) { id = newId; }
     void setName(const std::string& newName) { name = newName; }
     void setPrice(double newPrice) { price = newPrice; }
-    void setQuantity(int newQuantity) { quantity = newQuantity; }   
+    void setQuantity(int newQuantity) { quantity = newQuantity; }
+    
 };
 /*---------------------------------------------------------------------------------*/
 
@@ -45,3 +47,7 @@ std::vector<Item> loadSave(std::string full_directory);
 void showAllItems(const std::vector<Item>& allItems);
 
 void addItem(std::vector<Item>& allItems, std::string full_directory);
+
+void removeItem(std::vector<Item>& allItems);
+
+void modifyItem(std::vector<Item>& allItems);

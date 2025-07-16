@@ -137,8 +137,10 @@ int main() {
                 addItem(allItems, full_directory); // function to add item
                 break;
             case '2': // remove item
+                removeItem(allItems); // function to remove item
                 break;
             case '3': // modify item
+                modifyItem(allItems);
                 break;
             case '4': // search item
                 break;

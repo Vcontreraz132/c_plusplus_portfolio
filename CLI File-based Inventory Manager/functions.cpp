@@ -238,33 +238,62 @@ void modifyItem(std::vector<Item>& allItems) {
     std::cout << "Enter the ID or name of the item to modify: ";
     std::cin >> input;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // clear input buffer to prevent newline issues
-    auto it = std::remove_if(allItems.begin(), allItems.end(), [input](const Item& item) {
+    auto it = std::find_if(allItems.begin(), allItems.end(), [input](const Item& item) { // mistakenly used std::remove_if
         return std::to_string(item.getId()) == input || item.getName() == input;
     });
 
     if(it != allItems.end()) {
-        // item match found, modify it
-        printModifyMenu();
-        std::string choice;
-        std::cout << "Enter your choice: ";
-        std::getline(std::cin, choice);
+        bool modifying = true;
+        while(modifying) {
+            printModifyMenu();
+            std::string choice;
+            std::cout << "Enter your choice: ";
+            std::getline(std::cin, choice);
 
-        switch(choice[0]) {
-            case '1': {
-                std::string newName;
-                std::cout << "Enter new name: ";
-                std::getline(std::cin, newName);
-                it->setName(newName); // call setName of selected item
-                it->getName(); // confirm that name has changed
-                std::cout << "Name changed successfully" << std::endl;
-                return;
-            }
+            switch(choice[0]) {
+                case '1': { // change item name
+                    std::string newName;
+                    std::cout << "Enter new name: ";
+                    std::getline(std::cin, newName);
+                    it->setName(newName); // call setName of selected item
+                    it->display(); // confirm that name has changed
+                    std::cout << "Name changed successfully" << std::endl;
+                    break;
+                }
 
-            default : {
-                std::cout << "Invalid entry" << std::endl;
-                return;
+                case '2': { // change item price
+                    double newPrice;
+                    std::cout << "Enter new item price: ";
+                    std::cin >> newPrice;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    it->setPrice(newPrice);
+                    it->display(); // confirm that price has changed
+                    std::cout << "Price changed successfully" << std::endl;
+                    break;
+                }
+
+                case '3': { // change item quantity
+                    int newQuantity;
+                    std::cout << "Enter new item quantity: ";
+                    std::cin >> newQuantity;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    it->setQuantity(newQuantity);
+                    it->display();
+                    std::cout << "Quantity changed successfully" << std::endl;
+                    break;
+                }
+
+                case '4': {
+                    std::cout << "Modifications complete" << std::endl;
+                    modifying = false;
+                    break;
+                }
+
+                default : {
+                    std::cout << "Invalid entry" << std::endl;
+                    return;
+                }
             }
         }
-
     }
 }

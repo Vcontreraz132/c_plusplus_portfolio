@@ -89,9 +89,9 @@ std::vector<Item> loadSave(std::string full_directory) {
         }
         // after loading all items, close the file
         save_file.close();
-
         std::cout << "File loaded successfully" << std::endl;
     } else {
+        
         std::cerr << "File error: Unable to open file" << std::endl;
     }
 
@@ -132,7 +132,13 @@ void printMenu() {
 
 void showAllItems(const std::vector<Item>& allItems) {
     std::cout << "All Items:" << std::endl;
-    for(const auto& item : allItems) {
+    std::vector<Item> sortedItems = allItems;
+
+    std::sort(sortedItems.begin(), sortedItems.end(), [](const Item& a, const Item& b) {
+        return a.getName() < b.getName();
+    });
+
+    for(const auto& item : sortedItems) {
         item.display(); // Display each item
     }
     std::cin.get(); // Wait for user input before returning to the menu 
@@ -185,20 +191,6 @@ void addItem(std::vector<Item>& allItems, std::string full_directory) {
     allItems.push_back(newItem); // Add the new item to the vector
     std::cout << "Item added successfully!" << std::endl;
     newItem.display(); // Display the newly added item
-
-    // add new item to save file
-    // use new saveToFile function
-    // std::ofstream save_file(full_directory, std::ios::app); // Open the file in append mode
-    // if(save_file.is_open()) {
-    //     save_file << newItem.getId() << "," 
-    //               << newItem.getName() << ","
-    //               << newItem.getPrice() << ","
-    //               << newItem.getQuantity() << "\n"; // Write the item details to the file
-    //     save_file.close(); // Close the file after writing
-    //     std::cout << "Item saved to file successfully!" << std::endl;
-    // } else {
-    //     std::cerr << "Error: Unable to open save file for writing." << std::endl;
-    // }
     saveToFile(allItems, full_directory);
 }
 
@@ -211,6 +203,12 @@ void removeItem(std::vector<Item>& allItems) {
     std::string input;
     std::cout << "Enter the ID or name of the item to remove: ";
     std::cin >> input;
+    if(std::cin.fail() || input.empty()) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
+        std::cout << "Invalid input. Please enter a valid ID or name." << std::endl;
+        return;
+    }
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer after reading the input
 
     // Find the item by ID or name
@@ -322,14 +320,24 @@ void modifyItem(std::vector<Item>& allItems) {
 
 void saveToFile(const std::vector<Item>& allItems, const std::string& full_directory) {
     std::ofstream save_file(full_directory, std::ios::trunc); // open file and overwrite existing data
+
+    std::vector<Item> sortedItems = allItems;
+
+    std::sort(sortedItems.begin(), sortedItems.end(), [](const Item& a, const Item& b) {
+        return a.getId() < b.getId();
+    });
+
     if(save_file.is_open()) {
+        
         save_file << "ID,Name,Price,Quantity\n"; // file header
-        for(const auto& item : allItems) {
+        for(const auto& item : sortedItems) {
+
             save_file << item.getId() << "," << item.getName() << "," << item.getPrice() << "," << item.getQuantity() << "\n";
         }
         save_file.close();
         std::cout << "Items saved to file successfully!" << std::endl;
     } else {
+
         std::cerr << "Error: Unable to open save file" << std::endl;
     }
     return;

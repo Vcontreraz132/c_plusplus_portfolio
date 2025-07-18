@@ -143,12 +143,14 @@ int main() {
                 modifyItem(allItems);
                 break;
             case '4': // search item
+                searchItem(allItems); // function to search item
                 break;
             case '5': // show all
                 showAllItems(allItems); // function to display all items
                 break;
             case '6': // exit
                 running = false; // exit the loop
+                saveToFile(allItems, full_directory); // save to file before exiting
                 std::cout << "Exiting..." << std::endl;
                 break;
             default:

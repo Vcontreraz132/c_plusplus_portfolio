@@ -55,3 +55,7 @@ void modifyItem(std::vector<Item>& allItems);
 void saveToFile(const std::vector<Item>& allItems, const std::string& full_directory);
 
 void searchItem(const std::vector<Item>& allItems);
+
+std::vector<Item> backupVector(const std::vector<Item>& allItems);
+
+void undoLastAction(std::vector<Item>& allItems, const std::vector<Item>& backupItems);

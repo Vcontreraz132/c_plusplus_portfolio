@@ -145,35 +145,37 @@ void addItem(std::vector<Item>& allItems, std::string full_directory) {
     double price;
     int quantity;
 
-    // wrap user input in try / catch block to handle invalid input
-    try {
-        std::cout << "Enter Item ID: ";
-        std::cin >> id;
-        if(std::cin.fail()) {
-            throw std::invalid_argument("Invalid ID input. Please enter a valid number.");
-        }
-        std::cin.ignore(); // Ignore the newline character left in the input buffer
-        std::cout << "Enter Item Name: ";
-        std::getline(std::cin, name);
-        if(name.empty()) {
-            throw std::invalid_argument("Item name cannot be empty.");
-        }
-        std::cout << "Enter Item Price: ";
-        std::cin >> price;
-        if(std::cin.fail() || price < 0) {
-            throw std::invalid_argument("Invalid price input. Please enter a valid positive number.");
-        }
-        std::cin.ignore(); // Ignore the newline character left in the input buffer
-        std::cout << "Enter Item Quantity: ";
-        std::cin >> quantity;
-        if(std::cin.fail() || quantity < 0) {
-            throw std::invalid_argument("Invalid quantity input. Please enter a valid non-negative number.");
-        }
-    }
-    catch(const std::invalid_argument& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    // validate each input, if invalid cancel item creation
+    std::cout << "Enter Item ID: ";
+    std::cin >> id;
+    if(std::cin.fail() || id < 0) {
+        std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer
-        return; // Exit the function if input is invalid
+        throw std::invalid_argument("Invalid ID input. Please enter a valid positive number.");
+    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Enter Item Name: ";
+    std::getline(std::cin, name);
+    if(name.empty()) {
+        throw std::invalid_argument("Item name cannot be empty.");
+        return;
+    }
+    std::cout << "Enter Item Price: ";
+    std::cin >> price;
+    if(std::cin.fail() || price < 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw std::invalid_argument("Invalid price input. Please enter a valid positive number.");
+        return;
+    }
+    std::cin.ignore(); // Ignore the newline character left in the input buffer
+    std::cout << "Enter Item Quantity: ";
+    std::cin >> quantity;
+    if(std::cin.fail() || quantity < 0) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        throw std::invalid_argument("Invalid quantity input. Please enter a valid non-negative number.");
+        return;
     }
 
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input buffer after reading all inputs
@@ -185,17 +187,19 @@ void addItem(std::vector<Item>& allItems, std::string full_directory) {
     newItem.display(); // Display the newly added item
 
     // add new item to save file
-    std::ofstream save_file(full_directory, std::ios::app); // Open the file in append mode
-    if(save_file.is_open()) {
-        save_file << newItem.getId() << "," 
-                  << newItem.getName() << ","
-                  << newItem.getPrice() << ","
-                  << newItem.getQuantity() << "\n"; // Write the item details to the file
-        save_file.close(); // Close the file after writing
-        std::cout << "Item saved to file successfully!" << std::endl;
-    } else {
-        std::cerr << "Error: Unable to open save file for writing." << std::endl;
-    }
+    // use new saveToFile function
+    // std::ofstream save_file(full_directory, std::ios::app); // Open the file in append mode
+    // if(save_file.is_open()) {
+    //     save_file << newItem.getId() << "," 
+    //               << newItem.getName() << ","
+    //               << newItem.getPrice() << ","
+    //               << newItem.getQuantity() << "\n"; // Write the item details to the file
+    //     save_file.close(); // Close the file after writing
+    //     std::cout << "Item saved to file successfully!" << std::endl;
+    // } else {
+    //     std::cerr << "Error: Unable to open save file for writing." << std::endl;
+    // }
+    saveToFile(allItems, full_directory);
 }
 
 void removeItem(std::vector<Item>& allItems) {
@@ -228,12 +232,15 @@ void printModifyMenu() {
     std::cout << "1. Change Name" << std::endl;
     std::cout << "2. Change Price" << std::endl;
     std::cout << "3. Change Quantity" << std::endl;
-    std::cout << "4. Exit" << std::endl;
+    std::cout << "4. Undo Last Action" << std::endl;
+    std::cout << "5. Exit" << std::endl;
 }
 
 void modifyItem(std::vector<Item>& allItems) {
-    // take in vector and prompt user for name or id of item to modify
 
+    // before modifying, create backup vector
+    std::vector<Item> backupItems = backupVector(allItems); // create backup vector before modifying
+    // take in vector and prompt user for name or id of item to modify
     std::string input;
     std::cout << "Enter the ID or name of the item to modify: ";
     std::cin >> input;
@@ -249,6 +256,15 @@ void modifyItem(std::vector<Item>& allItems) {
             std::string choice;
             std::cout << "Enter your choice: ";
             std::getline(std::cin, choice);
+
+            // check if input is valid
+            if(choice.empty() || choice.length() > 1 || (choice[0] < '1' || choice[0] > '5')) {
+                std::cout << "Invalid entry. Please try again." << std::endl;
+                continue; // Skip to the next iteration
+            }
+            if(choice[0] != '4') {
+                backupItems = backupVector(allItems); // create backup vector each time an item is modified
+            }
 
             switch(choice[0]) {
                 case '1': { // change item name
@@ -283,7 +299,13 @@ void modifyItem(std::vector<Item>& allItems) {
                     break;
                 }
 
-                case '4': {
+                case '4': { // undo
+                    undoLastAction(allItems, backupItems);
+                    it->display(); // display the item after undoing
+                    break;
+                }
+
+                case '5': {
                     std::cout << "Modifications complete" << std::endl;
                     modifying = false;
                     break;
@@ -291,7 +313,7 @@ void modifyItem(std::vector<Item>& allItems) {
 
                 default : {
                     std::cout << "Invalid entry" << std::endl;
-                    return;
+                    continue;
                 }
             }
         }
@@ -329,4 +351,21 @@ void searchItem(const std::vector<Item>& allItems) {
     }
     
     return;
+}
+
+std::vector<Item> backupVector(const std::vector<Item>& allItems) { // create backup vector each time an item is added / removed / modified
+    // function to be used by undo function
+    std::vector<Item> backupItems = allItems; // create copy of allItems
+    std::cout << "DEBUG: Backup created with " << backupItems.size() << " items." << std::endl;
+    return backupItems; // return the backup vector
+}
+
+void undoLastAction(std::vector<Item>& allItems, const std::vector<Item>& backupItems) {
+    // function to undo last action
+    if(backupItems.empty()) {
+        std::cout << "No actions to undo." << std::endl;
+        return; // Exit if there are no actions to undo
+    }
+    allItems = backupItems; // restore backup items to allItems
+    std::cout << "Last action undone." << std::endl;
 }

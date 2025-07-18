@@ -297,3 +297,36 @@ void modifyItem(std::vector<Item>& allItems) {
         }
     }
 }
+
+void saveToFile(const std::vector<Item>& allItems, const std::string& full_directory) {
+    std::ofstream save_file(full_directory, std::ios::trunc); // open file and overwrite existing data
+    if(save_file.is_open()) {
+        save_file << "ID,Name,Price,Quantity\n"; // file header
+        for(const auto& item : allItems) {
+            save_file << item.getId() << "," << item.getName() << "," << item.getPrice() << "," << item.getQuantity() << "\n";
+        }
+        save_file.close();
+        std::cout << "Items saved to file successfully!" << std::endl;
+    } else {
+        std::cerr << "Error: Unable to open save file" << std::endl;
+    }
+    return;
+}
+
+void searchItem(const std::vector<Item>& allItems) {
+    std::string input;
+    std::cout << "Enter the ID or name of the item to search: ";
+    std::getline(std::cin, input);
+    auto it = std::find_if(allItems.begin(), allItems.end(), [input](const Item& item) {
+        return std::to_string(item.getId()) == input || item.getName() == input;
+    });
+    if(it != allItems.end()) {
+        std::cout << "Item found: ";
+        it->display();
+        std::cin.get(); // Wait for user input before returning to the menu
+    } else {
+        std::cout << "Item not found." << std::endl;
+    }
+    
+    return;
+}

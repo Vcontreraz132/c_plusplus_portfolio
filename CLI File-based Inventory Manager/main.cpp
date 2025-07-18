@@ -134,7 +134,11 @@ int main() {
         
         switch(choice[0]) {
             case '1': // add item
-                addItem(allItems, full_directory); // function to add item
+                try{
+                    addItem(allItems, full_directory); // function to add item
+                } catch(const std::invalid_argument& e) {
+                    std::cerr << "Error: " << e.what() << std::endl;
+                }
                 break;
             case '2': // remove item
                 removeItem(allItems); // function to remove item

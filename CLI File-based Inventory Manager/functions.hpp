@@ -51,3 +51,7 @@ void addItem(std::vector<Item>& allItems, std::string full_directory);
 void removeItem(std::vector<Item>& allItems);
 
 void modifyItem(std::vector<Item>& allItems);
+
+void saveToFile(const std::vector<Item>& allItems, const std::string& full_directory);
+
+void searchItem(const std::vector<Item>& allItems);
